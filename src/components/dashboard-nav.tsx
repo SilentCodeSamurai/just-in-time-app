@@ -1,12 +1,10 @@
-import { Bookmark, Box, LayoutDashboard, List, LogOut, User } from "lucide-react";
+import { Bookmark, Box, LayoutDashboard, List, Settings } from "lucide-react";
 import { Popover, PopoverTrigger } from "./ui/popover";
-
+import { ThemeModeToggle } from "@/features/user-preferences/components/theme-mode-toggle";
 import { Button } from "./ui/button";
 import { Link } from "@tanstack/react-router";
-import { Logo } from "./logo";
 import { PopoverContent } from "./ui/popover";
-import { Separator } from "./ui/separator";
-// import ThemeColorPicker from "./theme-color-picker";
+import ThemeColorPicker from "@/features/user-preferences/components/theme-color-picker";
 
 const items = [
 	{
@@ -31,48 +29,39 @@ const items = [
 	},
 ];
 
-type DashboardNavProps = {
-	email: string;
-};
-
-export function DashboardNav({ email }: DashboardNavProps) {
+export function DashboardNav() {
 	return (
 		<>
-			<header className="lg:top-0 bottom-0 lg:bottom-auto left-0 z-100 fixed flex flex-row justify-center items-center gap-1 lg:gap-2 bg-primary/10 backdrop-blur-xl w-full h-12">
-				<div>
-					<Logo size="sm" className="hidden lg:flex" animate="always" />
-					<Separator orientation="vertical" />
-				</div>
-
+			<header className="lg:pt-2 lg:top-0 bottom-0 lg:bottom-auto left-0 z-20 fixed flex flex-row lg:flex-col justify-center lg:justify-start items-center gap-2 lg:gap-2 bg-primary/10 backdrop-blur-xl w-full lg:w-12 h-12 lg:h-full">
 				{items.map((item) => (
-					<Button variant="ghost" asChild key={item.url} className="gap-0.5 min-w-fit size-11">
+					<Button
+						variant="ghost"
+						asChild
+						key={item.url}
+						// className="gap-0.5 min-w-fit size-11"
+						size="icon"
+					>
 						<Link
 							key={item.url}
 							to={item.url}
-							className="flex flex-col items-center gap-0"
+							className="flex flex-col items-center gap-0 hover:text-primary"
 							activeOptions={{ exact: true }}
 							activeProps={{ className: "text-primary" }}
 						>
 							<item.icon />
-							<p className="text-xs">{item.title}</p>
 						</Link>
 					</Button>
 				))}
 				<Popover>
 					<PopoverTrigger asChild>
-						<Button variant="ghost" className="flex flex-col items-center gap-0 min-w-fit size-11">
-							<User />
-							<p className="text-xs">Me</p>
+						<Button variant="ghost" size="icon">
+							<Settings />
 						</Button>
 					</PopoverTrigger>
 					<PopoverContent className="flex flex-col items-center gap-2 w-fit">
-						<p className="font-medium text-sm">{email}</p>
 						<div className="flex flex-row items-center gap-2 text-xs">
-							{/* <ThemeColorPicker /> */}
-							<Button variant="destructive" className="w-fit">
-								<LogOut />
-								<p>Logout</p>
-							</Button>
+							<ThemeColorPicker />
+							<ThemeModeToggle />
 						</div>
 					</PopoverContent>
 				</Popover>

@@ -1,16 +1,12 @@
 // app/routes/__root.tsx
 
 import { Outlet, Scripts } from "@tanstack/react-router";
-
-import { QueryClient } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { Toaster } from "@/components/ui/sonner";
 import { createRootRouteWithContext } from "@tanstack/react-router";
+import { useUserPreferences } from "@/features/user-preferences/hooks/use-user-preferences";
 
-export const Route = createRootRouteWithContext<{
-	queryClient: QueryClient;
-}>()({
+export const Route = createRootRouteWithContext<{}>()({
 	head: () => ({
 		meta: [
 			{
@@ -62,6 +58,8 @@ export const Route = createRootRouteWithContext<{
 });
 
 function RootComponent() {
+	useUserPreferences();
+
 	return (
 		<>
 			<div className="relative">
@@ -71,7 +69,6 @@ function RootComponent() {
 			</div>
 			<Scripts />
 			<TanStackRouterDevtools position="bottom-right" />
-			<ReactQueryDevtools buttonPosition="bottom-left" />
 		</>
 	);
 }

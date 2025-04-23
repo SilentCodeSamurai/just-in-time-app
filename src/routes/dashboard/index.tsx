@@ -8,28 +8,63 @@ import { Calendar } from "@/components/ui/calendar";
 import { Card } from "@/components/ui/card";
 import { DashboardContent } from "@/components/dashboard-content";
 import { DashboardHeader } from "@/components/dashboard-header";
-import { TodoCard } from "@/components/features/todo/card";
+import { TodoCard } from "@/features/todo/components/card";
 import { buttonVariants } from "@/components/ui/button";
-import { categoryGetAllQuery } from "@/queries/category";
 import { cn } from "@/lib/utils";
-import { groupGetAllQuery } from "@/queries/group";
-import { todoGetAllQuery } from "@/queries/todo";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { filterTodo, sortTodo } from "@/lib/todo";
+import { useLiveQuery } from "dexie-react-hooks";
+import { db } from "@/lib/db";
+import { filterTodo, sortTodo } from "@/features/todo/utils";
 
 export const Route = createFileRoute("/dashboard/")({
 	component: RouteComponent,
-	loader: async ({ context }) => {
-		await context.queryClient.ensureQueryData(todoGetAllQuery);
-		await context.queryClient.ensureQueryData(categoryGetAllQuery);
-		await context.queryClient.ensureQueryData(groupGetAllQuery);
-	},
 });
 
 function RouteComponent() {
 	const [dateFilter, setDateFilter] = useState<DateRange | null>(null);
-	const todoAllResult = useSuspenseQuery(todoGetAllQuery);
-	const activeTodos = useMemo(() => filterTodo(todoAllResult.data, { completed: false }), [todoAllResult]);
+
+	const todos = useLiveQuery(async () => {
+		const todos = await db.todos.toArray();
+
+		const todosWithRelations = await Promise.all(
+			todos.map(async (todo) => {
+				const [category, group, subtasks] = await Promise.all([
+					todo.categoryId ? db.categories.get(todo.categoryId) : null,
+					todo.groupId ? db.groups.get(todo.groupId) : null,
+					db.subtasks.where("todoId").equals(todo.id).toArray(),
+				]);
+
+				return {
+					...todo,
+					category: category
+						? {
+								id: category.id,
+								name: category.name,
+								color: category.color,
+							}
+						: null,
+					group: group
+						? {
+								id: group.id,
+								name: group.name,
+								color: group.color,
+							}
+						: null,
+					subtasks: subtasks.map((subtask) => ({
+						id: subtask.id,
+						title: subtask.title,
+						completed: subtask.completed,
+					})),
+				};
+			})
+		);
+
+		return todosWithRelations;
+	});
+
+	const activeTodos = useMemo(
+		() => filterTodo(todos || [], { completed: false }),
+		[todos]
+	);
 	const dateTodos = useMemo(() => {
 		if (dateFilter) {
 			return activeTodos.filter((todo) => {
@@ -67,7 +102,7 @@ function RouteComponent() {
 					sortOrder: "asc",
 				}
 			),
-		[activeTodos]
+		[dateTodos]
 	);
 
 	return (
@@ -98,24 +133,33 @@ function RouteComponent() {
 						components={{
 							DayContent: (props) => {
 								const dateTodos = activeTodos.filter(
-									(todo) => todo.dueDate && isSameDay(todo.dueDate, props.date)
+									(todo) =>
+										todo.dueDate &&
+										isSameDay(todo.dueDate, props.date)
 								);
 								const dateColorsSet = new Set<string>();
 								for (const todo of dateTodos) {
-									dateColorsSet.add(todo.category?.color || "#FFFFFF");
+									dateColorsSet.add(
+										todo.category?.color || "#FFFFFF"
+									);
 								}
 								return (
 									<>
 										<div className="relative flex justify-center items-center size-10 lg:size-20">
 											<DayContent {...props} />
 											<div className="top-0 left-0 absolute flex gap-[1px]">
-												{Array.from(dateColorsSet).map((color) => (
-													<div
-														className="rounded-full size-2"
-														style={{ backgroundColor: color }}
-														key={color}
-													/>
-												))}
+												{Array.from(dateColorsSet).map(
+													(color) => (
+														<div
+															className="rounded-full size-2"
+															style={{
+																backgroundColor:
+																	color,
+															}}
+															key={color}
+														/>
+													)
+												)}
 											</div>
 										</div>
 									</>
@@ -124,7 +168,10 @@ function RouteComponent() {
 						}}
 					/>
 				</Card>
-				<AnimatedGrid objects={urgentTodos} render={(todo) => <TodoCard todo={todo} />} />
+				<AnimatedGrid
+					objects={urgentTodos}
+					render={(todo) => <TodoCard todo={todo} />}
+				/>
 			</DashboardContent>
 		</>
 	);

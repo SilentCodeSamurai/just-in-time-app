@@ -1,33 +1,57 @@
 import { AnimatedGrid } from "@/components/animated-grid";
-import { CategoryCard } from "@/components/features/category/card";
-import { CreateCategoryForm } from "@/components/features/category/create-form";
+import { CategoryCard } from "@/features/category/components/card";
+import { CreateCategoryForm } from "@/features/category/components/create-form";
 import { DashboardContent } from "@/components/dashboard-content";
 import { DashboardHeader } from "@/components/dashboard-header";
-import { categoryGetAllQuery } from "@/queries/category";
 import { createFileRoute } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useLiveQuery } from "dexie-react-hooks";
+import { db } from "@/lib/db";
+import { CategoryAllItem } from "@/features/category/types";
+import { useState } from "react";
 
 export const Route = createFileRoute("/dashboard/category")({
-	loader: async ({ context }) => {
-		const categories = await context.queryClient.ensureQueryData(categoryGetAllQuery);
-		return categories;
-	},
 	component: RouteComponent,
 });
 
 function RouteComponent() {
-	const categoryAllResult = useSuspenseQuery(categoryGetAllQuery);
-	const categoryAll = categoryAllResult.data;
+	const [createFormOpen, setCreateFormOpen] = useState(false);
+
+	const categories = useLiveQuery(async () => {
+		const categories = await db.categories.toArray();
+
+		const categoriesWithCount: CategoryAllItem[] = await Promise.all(
+			categories.map(async (category) => {
+				const todoCount = await db.todos
+					.where("categoryId")
+					.equals(category.id)
+					.count();
+				return {
+					...category,
+					_count: {
+						todos: todoCount,
+					},
+				};
+			})
+		);
+
+		return categoriesWithCount;
+	});
 
 	return (
 		<>
 			<DashboardHeader>
 				<h1 className="font-bold text-xl">Categories</h1>
-				<CreateCategoryForm />
+				<CreateCategoryForm
+					open={createFormOpen}
+					onOpenChange={setCreateFormOpen}
+				/>
 			</DashboardHeader>
 
 			<DashboardContent>
-				<AnimatedGrid objects={categoryAll} render={(category) => <CategoryCard category={category} />} />
+				<AnimatedGrid
+					objects={categories || []}
+					render={(category) => <CategoryCard category={category} />}
+				/>
 			</DashboardContent>
 		</>
 	);

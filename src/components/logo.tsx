@@ -27,7 +27,10 @@ const textVariants = cva("font-bold whitespace-nowrap", {
 	},
 });
 
-type LogoProps = { animate?: "hover" | "always"; size?: "lg" | "sm" } & React.ComponentProps<"div">;
+type LogoProps = {
+	animate?: "hover" | "always";
+	size?: "lg" | "sm";
+} & React.ComponentProps<"div">;
 
 export function Logo({ animate = "hover", size = "lg", className }: LogoProps) {
 	return (
@@ -44,7 +47,12 @@ export function Logo({ animate = "hover", size = "lg", className }: LogoProps) {
 					T<span className="opacity-0 text-foreground">I</span>ME
 				</span>
 			</h1>
-			<Hourglass className={cn(svgVariants({ size }), animate === "always" && "animate-hourglass")} />
+			<Hourglass
+				className={cn(
+					svgVariants({ size }),
+					animate === "always" && "animate-hourglass"
+				)}
+			/>
 		</div>
 	);
 }

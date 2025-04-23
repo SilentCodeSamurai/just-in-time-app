@@ -1,5 +1,4 @@
 import { Outlet, createFileRoute } from "@tanstack/react-router";
-
 import { DashboardNav } from "@/components/dashboard-nav";
 
 export const Route = createFileRoute("/dashboard")({
@@ -9,9 +8,8 @@ export const Route = createFileRoute("/dashboard")({
 function Layout() {
 	return (
 		<>
-			{/* TODO: add user session */}
-			<DashboardNav email={"Test user"} />
-			<main className="relative flex flex-col gap-2 mb-12 lg:mb-0 p-2 w-full min-h-svh">
+			<DashboardNav />
+			<main className="relative flex flex-col gap-2 mb-12 lg:mb-0 p-2 lg:pl-14 w-full min-h-svh">
 				<Outlet />
 			</main>
 		</>
