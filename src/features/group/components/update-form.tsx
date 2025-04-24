@@ -64,8 +64,13 @@ export function GroupUpdateForm({
 	async function onSubmit(values: z.infer<typeof GroupUpdateInputSchema>) {
 		setIsSubmitting(true);
 		try {
+			const group = await db.groups.get(values.id);
+			if (!group) {
+				throw new Error("Group not found");
+			}
 			const { id, ...updateData } = values;
 			await db.groups.where({ id }).modify({
+				...group,
 				...updateData,
 				updatedAt: new Date(),
 			});

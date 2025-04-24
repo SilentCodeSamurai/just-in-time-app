@@ -94,7 +94,12 @@ export function TodoUpdateForm({
 	async function onSubmit(values: z.infer<typeof TodoUpdateInputSchema>) {
 		setIsSubmitting(true);
 		try {
+			const todo = await db.todos.get(values.id);
+			if (!todo) {
+				throw new Error("Todo not found");
+			}
 			await db.todos.where({ id: values.id }).modify({
+				...todo,
 				...values,
 				completedAt: values.completed ? new Date() : null,
 				updatedAt: new Date(),
