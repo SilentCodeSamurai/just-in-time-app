@@ -112,7 +112,7 @@ function RouteComponent() {
 				<div className="size-9" />
 			</DashboardHeader>
 			<DashboardContent>
-				<Card className="w-full max-w-[600px]">
+				<Card className="w-full max-w-[400px] mb-4 py-0">
 					<Calendar
 						mode="range"
 						fixedWeeks
@@ -120,12 +120,12 @@ function RouteComponent() {
 						classNames={{
 							months: "flex w-full flex-col flex-row lg:space-y-4 space-x-0 space-y-2 flex-1",
 							month: "space-y-4 w-full flex flex-col",
-							table: "w-full h-full border-collapse space-y-5",
+							table: "w-full h-full border-collapse",
 							head_row: "",
 							row: "w-full",
 							day: cn(
 								buttonVariants({ variant: "ghost" }),
-								"size-10 lg:size-20 p-0 font-normal aria-selected:opacity-100 lg:text-xl"
+								"p-0 aspect-square font-normal aria-selected:opacity-100 lg:text-xl size-full"
 							),
 						}}
 						selected={dateFilter || undefined}
@@ -145,7 +145,7 @@ function RouteComponent() {
 								}
 								return (
 									<>
-										<div className="relative flex justify-center items-center size-10 lg:size-20">
+										<div className="relative flex justify-center items-center size-full">
 											<DayContent {...props} />
 											<div className="top-0 left-0 absolute flex gap-[1px]">
 												{Array.from(dateColorsSet).map(
