@@ -28,6 +28,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { db } from "@/lib/db";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { removeUndefinedFields } from "@/lib/utils";
 
 type CategoryUpdateFormData = z.infer<typeof CategoryUpdateInputSchema>;
 
@@ -64,7 +65,7 @@ export function CategoryUpdateForm({
 		setIsSubmitting(true);
 		try {
 			await db.categories.update(values.id, {
-				...values,
+				...removeUndefinedFields(values),
 				updatedAt: new Date(),
 			});
 			onOpenChange(false);

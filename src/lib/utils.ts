@@ -20,3 +20,9 @@ export function debounce(func: (...args: any[]) => void, wait: number) {
 export function getDateString(date: Date) {
 	return date.toISOString().split("T")[0];
 }
+
+export function removeUndefinedFields<T extends Record<string, any>>(obj: T): Partial<T> {
+	return Object.fromEntries(
+		Object.entries(obj).filter(([_, value]) => value !== undefined)
+	) as Partial<T>;
+}

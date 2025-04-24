@@ -29,6 +29,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { db } from "@/lib/db";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { removeUndefinedFields } from "@/lib/utils";
 
 type GroupUpdateFormData = z.infer<typeof GroupUpdateInputSchema>;
 
@@ -65,7 +66,7 @@ export function GroupUpdateForm({
 		setIsSubmitting(true);
 		try {
 			await db.groups.update(values.id, {
-				...values,
+				...removeUndefinedFields(values),
 				updatedAt: new Date(),
 			});
 			onOpenChange(false);

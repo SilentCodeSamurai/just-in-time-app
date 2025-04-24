@@ -38,7 +38,7 @@ import { PriorityBadge } from "./priority-badges";
 import { Textarea } from "@/components/ui/textarea";
 import { TodoAllItem } from "@/features/todo/types";
 import { TodoUpdateInputSchema } from "@/features/todo/schemas";
-import { cn } from "@/lib/utils";
+import { cn, removeUndefinedFields } from "@/lib/utils";
 import { format } from "date-fns";
 import { useForm } from "react-hook-form";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -95,7 +95,7 @@ export function TodoUpdateForm({
 		setIsSubmitting(true);
 		try {
 			await db.todos.update(values.id, {
-				...values,
+				...removeUndefinedFields(values),
 				completedAt: values.completed ? new Date() : null,
 				updatedAt: new Date(),
 			});
@@ -381,7 +381,12 @@ export function TodoUpdateForm({
 								)}
 							/>
 							<DialogFooter>
-								<Button type="submit" disabled={isSubmitting}>
+								<Button
+									type="submit"
+									disabled={
+										isSubmitting || !form.formState.isDirty
+									}
+								>
 									{isSubmitting ? "Updating..." : "Update"}
 								</Button>
 							</DialogFooter>
