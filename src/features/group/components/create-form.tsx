@@ -31,7 +31,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { db } from "@/lib/db";
 import { v4 as uuidv4 } from "uuid";
 import { ScrollArea } from "@/components/ui/scroll-area";
-
+import { toast } from "sonner";
 type CreateGroupFormProps = {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
@@ -69,8 +69,12 @@ export function CreateGroupForm({
 			onOpenChange(false);
 			form.reset();
 			onSuccess?.();
+			toast.success("Group created successfully");
 		} catch (error) {
-			console.error("Failed to create group:", error);
+			toast.error("Failed to create group", {
+				description:
+					error instanceof Error ? error.message : "Unknown error",
+			});
 		} finally {
 			setIsSubmitting(false);
 		}

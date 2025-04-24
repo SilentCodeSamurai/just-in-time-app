@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { CategoryAllItem } from "@/features/category/types";
 import { db } from "@/lib/db";
 import { useState } from "react";
-
+import { toast } from "sonner";
 type CategoryDeleteDialogProps = {
 	category: CategoryAllItem;
 	open: boolean;
@@ -30,8 +30,12 @@ export function CategoryDeleteDialog({
 		try {
 			await db.categories.where({ id: category.id }).delete();
 			onOpenChange(false);
+			toast.success("Category deleted successfully");
 		} catch (error) {
-			console.error("Failed to delete category:", error);
+			toast.error("Failed to delete category", {
+				description:
+					error instanceof Error ? error.message : "Unknown error",
+			});
 		} finally {
 			setIsDeleting(false);
 		}

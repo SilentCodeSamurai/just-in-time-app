@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { TodoAllItem } from "@/features/todo/types";
 import { db } from "@/lib/db";
 import { useState } from "react";
+import { toast } from "sonner";
 
 type TodoDeleteDialogProps = {
 	todo: TodoAllItem;
@@ -33,8 +34,12 @@ export function TodoDeleteDialog({
 				db.subtasks.where("todoId").equals(todo.id).delete(),
 			]);
 			onOpenChange(false);
+			toast.success("Todo deleted successfully");
 		} catch (error) {
-			console.error("Failed to delete todo:", error);
+			toast.error("Failed to delete todo", {
+				description:
+					error instanceof Error ? error.message : "Unknown error",
+			});
 		} finally {
 			setIsDeleting(false);
 		}

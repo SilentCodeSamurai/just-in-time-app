@@ -30,6 +30,7 @@ import { useState } from "react";
 import { db } from "@/lib/db";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { removeUndefinedFields } from "@/lib/utils";
+import { toast } from "sonner";
 
 type GroupUpdateFormData = z.infer<typeof GroupUpdateInputSchema>;
 
@@ -70,10 +71,14 @@ export function GroupUpdateForm({
 				updatedAt: new Date(),
 			});
 			onOpenChange(false);
-			form.reset();
 			onSuccess?.();
+			toast.success("Group updated successfully");
 		} catch (error) {
-			console.error("Failed to update group:", error);
+			toast.error("Failed to update group", {
+				description:
+					error instanceof Error ? error.message : "Unknown error",
+			});
+			form.reset(getFormValues(group));
 		} finally {
 			setIsSubmitting(false);
 		}

@@ -29,6 +29,7 @@ import { useState } from "react";
 import { db } from "@/lib/db";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { removeUndefinedFields } from "@/lib/utils";
+import { toast } from "sonner";
 
 type CategoryUpdateFormData = z.infer<typeof CategoryUpdateInputSchema>;
 
@@ -69,10 +70,14 @@ export function CategoryUpdateForm({
 				updatedAt: new Date(),
 			});
 			onOpenChange(false);
-			form.reset();
 			onSuccess?.();
+			toast.success("Category updated successfully");
 		} catch (error) {
-			console.error("Failed to update category:", error);
+			toast.error("Failed to update category", {
+				description:
+					error instanceof Error ? error.message : "Unknown error",
+			});
+			form.reset(getFormValues(category));
 		} finally {
 			setIsSubmitting(false);
 		}

@@ -29,7 +29,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { db } from "@/lib/db";
 import { v4 as uuidv4 } from "uuid";
 import { ScrollArea } from "@/components/ui/scroll-area";
-
+import { toast } from "sonner";
 type CreateCategoryFormProps = {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
@@ -66,8 +66,12 @@ export function CreateCategoryForm({
 			onOpenChange(false);
 			form.reset();
 			onSuccess?.();
+			toast.success("Category created successfully");
 		} catch (error) {
-			console.error("Failed to create category:", error);
+			toast.error("Failed to create category", {
+				description:
+					error instanceof Error ? error.message : "Unknown error",
+			});
 		} finally {
 			setIsSubmitting(false);
 		}

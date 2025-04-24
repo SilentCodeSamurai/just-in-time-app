@@ -51,7 +51,7 @@ import { Category } from "@/lib/db";
 import { Group } from "@/lib/db";
 import { v4 as uuidv4 } from "uuid";
 import { ScrollArea } from "@/components/ui/scroll-area";
-
+import { toast } from "sonner";
 type TodoCreateFormProps = {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
@@ -120,8 +120,12 @@ export function TodoCreateForm({
 			onOpenChange(false);
 			form.reset();
 			onSuccess?.();
+			toast.success("Todo created successfully");
 		} catch (error) {
-			console.error("Failed to create todo:", error);
+			toast.error("Failed to create todo", {
+				description:
+					error instanceof Error ? error.message : "Unknown error",
+			});
 		} finally {
 			setIsSubmitting(false);
 		}

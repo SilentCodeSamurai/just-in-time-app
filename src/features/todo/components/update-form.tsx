@@ -46,6 +46,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { db } from "@/lib/db";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { toast } from "sonner";
 
 type TodoUpdateFormData = z.infer<typeof TodoUpdateInputSchema>;
 
@@ -100,10 +101,14 @@ export function TodoUpdateForm({
 				updatedAt: new Date(),
 			});
 			onOpenChange(false);
-			form.reset();
 			onSuccess?.();
+			toast.success("Todo updated successfully");
 		} catch (error) {
-			console.error("Failed to update todo:", error);
+			toast.error("Failed to update todo", {
+				description:
+					error instanceof Error ? error.message : "Unknown error",
+			});
+			form.reset(getFormValues(todo));
 		} finally {
 			setIsSubmitting(false);
 		}

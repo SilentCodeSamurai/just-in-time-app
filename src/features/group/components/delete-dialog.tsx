@@ -10,7 +10,7 @@ import { GroupAllItem } from "@/features/group/types";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { db } from "@/lib/db";
-
+import { toast } from "sonner";
 type GroupDeleteDialogProps = {
 	group: GroupAllItem;
 	open: boolean;
@@ -29,8 +29,12 @@ export function GroupDeleteDialog({
 		try {
 			await db.groups.where({ id: group.id }).delete();
 			onOpenChange(false);
+			toast.success("Group deleted successfully");
 		} catch (error) {
-			console.error("Failed to delete group:", error);
+			toast.error("Failed to delete group", {
+				description:
+					error instanceof Error ? error.message : "Unknown error",
+			});
 		} finally {
 			setIsDeleting(false);
 		}
