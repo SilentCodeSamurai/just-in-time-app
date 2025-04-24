@@ -63,14 +63,8 @@ export function CategoryUpdateForm({
 	async function onSubmit(values: z.infer<typeof CategoryUpdateInputSchema>) {
 		setIsSubmitting(true);
 		try {
-			const category = await db.categories.get(values.id);
-			if (!category) {
-				throw new Error("Category not found");
-			}
-			const { id, ...updateData } = values;
-			await db.categories.where({ id }).modify({
-				...category,
-				...updateData,
+			await db.categories.update(values.id, {
+				...values,
 				updatedAt: new Date(),
 			});
 			onOpenChange(false);
